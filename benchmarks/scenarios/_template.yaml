@@ -1,0 +1,43 @@
+id: example_scenario_id
+title: Human-readable scenario name
+description: >
+  Short description of the rare failure and expected impact.
+tags: [distributed, rare-failure, synthetic]
+
+system_profile: ../system_profiles/default.yaml
+
+dataset:
+  source: synthetic   # synthetic | trace | live
+  duration_s: 600
+  warmup_s: 60
+
+failure:
+  type: network_partition   # network_partition | node_crash | latency_spike | corruption | slowdown
+  start_s: 300
+  duration_s: 120
+  parameters:
+    affected_nodes: [node2, node3]
+    packet_loss_pct: 100
+
+ground_truth:
+  label_name: fault
+  positive_interval_s: [300, 420]
+
+evaluation:
+  availability:
+    mtbf_s: 7200
+    mttr_s: 300
+  tails:
+    p99_targets: [latency_ms]
+  detection:
+    window_tolerance_s: 10
+    metrics: [precision, recall, f1]
+  slo:
+    latency_ms_p99: 250
+    error_rate_pct: 1.0
+
+reproducibility:
+  seed: 42
+
+version: 0.1.0
+notes: Example template. Replace all placeholder values.

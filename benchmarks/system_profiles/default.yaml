@@ -1,0 +1,20 @@
+name: default_system_profile
+description: Abstract 3-node distributed system
+sampling_defaults_hz: 1
+
+nodes:
+  - { id: node1, role: leader }
+  - { id: node2, role: follower }
+  - { id: node3, role: follower }
+
+metrics:
+  latency_ms:
+    nominal: 50
+    warning: 150
+    critical: 300
+  error_rate_pct:
+    nominal: 0.01
+    max: 1.0
+
+notes: >
+  Values are abstract and for illustration only.
