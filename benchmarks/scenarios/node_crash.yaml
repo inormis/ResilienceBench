@@ -1,0 +1,41 @@
+id: node_crash_db_primary
+title: Primary DB node crash during peak hour
+description: >
+  Rare primary DB crash leading to brief failover and degraded performance.
+tags: [ node-crash, db, rare-event ]
+
+system_profile: ../system_profiles/cloud_small.yaml
+
+dataset:
+  source: synthetic
+  duration_s: 1200
+  warmup_s: 90
+
+failure:
+  type: node_crash
+  start_s: 600
+  duration_s: 180
+  parameters:
+    affected_nodes: [ db-1 ]
+
+ground_truth:
+  label_name: fault
+  positive_interval_s: [ 600, 780 ]
+
+evaluation:
+  availability:
+    mtbf_s: 28800
+    mttr_s: 900
+  tails:
+    p99_targets: [ latency_ms ]
+  detection:
+    window_tolerance_s: 12
+    metrics: [ precision, recall, f1 ]
+  slo:
+    latency_ms_p99: 300
+    error_rate_pct: 1.5
+
+reproducibility:
+  seed: 317
+
+version: 0.1.0

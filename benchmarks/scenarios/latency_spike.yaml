@@ -1,0 +1,43 @@
+id: latency_spike_checkout
+title: Transient latency spike on checkout path
+description: >
+  Short spike impacting tail latency of the checkout flow under normal load.
+tags: [ latency, spike, rare-event ]
+
+system_profile: ../system_profiles/cloud_small.yaml
+
+dataset:
+  source: synthetic
+  duration_s: 900
+  warmup_s: 60
+
+failure:
+  type: latency_spike
+  start_s: 420
+  duration_s: 120
+  parameters:
+    target_metric: latency_ms
+    magnitude_ms: 220
+    decay_s: 60
+
+ground_truth:
+  label_name: fault
+  positive_interval_s: [ 420, 540 ]
+
+evaluation:
+  availability:
+    mtbf_s: 14400
+    mttr_s: 600
+  tails:
+    p99_targets: [ latency_ms ]
+  detection:
+    window_tolerance_s: 10
+    metrics: [ precision, recall, f1 ]
+  slo:
+    latency_ms_p99: 250
+    error_rate_pct: 1.0
+
+reproducibility:
+  seed: 20252
+
+version: 0.1.0
