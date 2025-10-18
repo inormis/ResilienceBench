@@ -18,16 +18,16 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r scripts/requirements.txt
+          python -m pip install -r ./scripts/requirements.txt
 
       - name: Validate YAML
-        run: python scripts/validate.py
+        run: python ./scripts/validate.py
 
       - name: Phase 3 sample run
         run: |
-          python scripts/generate.py --scenario benchmarks/scenarios/latency_spike.yaml --out eval/samples/latency_spike.csv
-          python scripts/baselines/threshold.py --inp eval/samples/latency_spike.csv --out eval/samples/latency_spike_pred.csv --scenario benchmarks/scenarios/latency_spike.yaml
-          python scripts/evaluate.py --scenario benchmarks/scenarios/latency_spike.yaml --data eval/samples/latency_spike.csv --pred eval/samples/latency_spike_pred.csv --out eval/reports/latency_spike_report.csv
+          python ./scripts/generate.py --scenario benchmarks/scenarios/latency_spike.yaml --out eval/samples/latency_spike.csv
+          python ./scripts/baselines/threshold.py --inp eval/samples/latency_spike.csv --out eval/samples/latency_spike_pred.csv --scenario benchmarks/scenarios/latency_spike.yaml
+          python ./scripts/evaluate.py --scenario benchmarks/scenarios/latency_spike.yaml --data eval/samples/latency_spike.csv --pred eval/samples/latency_spike_pred.csv --out eval/reports/latency_spike_report.csv
 
       - name: Phase 4 report
         run: python scripts/report.py --reports eval/reports --out eval/reports/index.html --title "ResilienceBench Report"
