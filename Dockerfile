@@ -5,8 +5,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r scripts/requirements.txt
+COPY ./scripts/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY benchmarks ./benchmarks
 COPY scripts ./scripts

@@ -1,0 +1,15 @@
+site_name: ResilienceBench
+repo_url: https://github.com/<org-or-user>/ResilienceBench
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Protocol: protocol.md
+  - Metrics: metrics.md
+  - Compatibility: compatibility.md
+  - Changelog: changelog.md
+plugins: [ ]
+markdown_extensions:
+  - admonition
+  - tables

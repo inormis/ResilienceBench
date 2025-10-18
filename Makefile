@@ -3,7 +3,7 @@
 SHELL := /bin/bash
 PYTHON ?= python3
 IMAGE  ?= resiliencebench:v0.1
-DFILE  ?= docker/Dockerfile
+DFILE  ?= Dockerfile
 
 ROOT   := $(CURDIR)
 SCEN   := $(ROOT)/benchmarks/scenarios/latency_spike.yaml
@@ -39,3 +39,14 @@ report:
 	$(PYTHON) scripts/report.py --reports $(REPORT) --out $(REPORT)/index.html --title "ResilienceBench Report"
 
 ci: validate run-phase3 report
+
+.PHONY: docs-build docs-serve docs-deploy
+
+docs-build:
+	$(PYTHON) -m mkdocs build
+
+docs-serve:
+	$(PYTHON) -m mkdocs serve -a 0.0.0.0:8000
+
+docs-deploy:
+	$(PYTHON) -m mkdocs gh-deploy --force

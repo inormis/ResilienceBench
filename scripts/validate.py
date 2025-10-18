@@ -2,20 +2,21 @@
 from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional, Dict, Literal, Any
-import yaml, typer
+import yaml
 from rich.console import Console
 from rich.table import Table
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 
-app = typer.Typer(add_completion=False)
 console = Console()
 
 FailureType = Literal["network_partition", "node_crash", "latency_spike", "corruption", "slowdown"]
+
 
 class Dataset(BaseModel):
     source: Literal["synthetic", "trace", "live"]
     duration_s: int = Field(gt=0)
     warmup_s: int = Field(ge=0)
+
 
 class Failure(BaseModel):
     type: FailureType
@@ -23,20 +24,25 @@ class Failure(BaseModel):
     duration_s: int = Field(gt=0)
     parameters: Dict[str, Any]
 
+
 class GroundTruth(BaseModel):
     label_name: str = "fault"
     positive_interval_s: List[int] = Field(min_length=2, max_length=2)
+
 
 class Availability(BaseModel):
     mtbf_s: int = Field(gt=0)
     mttr_s: int = Field(gt=0)
 
+
 class Tails(BaseModel):
     p99_targets: List[str] = Field(min_length=1)
+
 
 class Detection(BaseModel):
     window_tolerance_s: int = Field(ge=0, le=60)
     metrics: List[Literal["precision", "recall", "f1"]] = Field(min_length=1)
+
 
 class Evaluation(BaseModel):
     availability: Optional[Availability] = None
@@ -44,10 +50,6 @@ class Evaluation(BaseModel):
     detection: Optional[Detection] = None
     slo: Optional[Dict[str, float]] = None
 
-    @field_validator("availability")
-    @classmethod
-    def pairwise_availability(cls, v):
-        return v
 
 class Scenario(BaseModel):
     id: str = Field(pattern=r"^[a-z0-9_]+$")
@@ -60,8 +62,7 @@ class Scenario(BaseModel):
     ground_truth: GroundTruth
     evaluation: Evaluation
     reproducibility: Dict[str, Any]
-    version: Optional[str] = None
-    notes: Optional[str] = None
+    version: str
 
     @field_validator("reproducibility")
     @classmethod
@@ -70,15 +71,34 @@ class Scenario(BaseModel):
             raise ValueError("reproducibility.seed is required")
         return v
 
+    @model_validator(mode="after")
+    def check_slo_rules(self):
+        slo = self.evaluation.slo or {}
+        f = self.failure.type
+        req = set()
+        if f in ("latency_spike", "slowdown"):
+            req.add("latency_ms_p99")
+        if f in ("node_crash", "network_partition", "corruption"):
+            req.add("error_rate_pct")
+        if f == "network_partition":
+            req.add("latency_ms_p99")
+        missing = [k for k in req if k not in slo]
+        if missing:
+            raise ValueError(f"evaluation.slo missing for {f}: {', '.join(missing)}")
+        return self
+
+
 class Node(BaseModel):
     id: str
     role: str
+
 
 class MetricThresholds(BaseModel):
     nominal: float
     warning: Optional[float] = None
     critical: Optional[float] = None
     max: Optional[float] = None
+
 
 class SystemProfile(BaseModel):
     name: str
@@ -88,29 +108,27 @@ class SystemProfile(BaseModel):
     metrics: Dict[str, MetricThresholds]
     notes: Optional[str] = None
 
-def load_yaml(path: Path) -> dict:
-    with path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
 
-def validate_file(path: Path, kind: Literal["scenario","profile"]) -> Optional[str]:
+def load_yaml(path: Path) -> dict:
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
+
+
+def validate_file(path: Path, kind: Literal["scenario", "profile"]) -> Optional[str]:
     try:
         data = load_yaml(path)
-        if kind == "scenario":
-            Scenario(**data)
-        else:
-            SystemProfile(**data)
+        (Scenario if kind == "scenario" else SystemProfile)(**data)
         return None
     except ValidationError as e:
         return e.short_errors()
     except Exception as e:
         return str(e)
 
-def collect(kind: Literal["scenario","profile"]) -> List[Path]:
+
+def collect(kind: Literal["scenario", "profile"]) -> List[Path]:
     root = Path(__file__).resolve().parents[1]
-    if kind == "scenario":
-        return sorted([p for p in (root/"benchmarks"/"scenarios").glob("*.yaml") if not p.name.startswith("_")])
-    else:
-        return sorted([p for p in (root/"benchmarks"/"system_profiles").glob("*.yaml") if not p.name.startswith("_")])
+    folder = "scenarios" if kind == "scenario" else "system_profiles"
+    return sorted([p for p in (root / "benchmarks" / folder).glob("*.yaml") if not p.name.startswith("_")])
+
 
 def report(rows):
     t = Table(title="ResilienceBench Validation", show_lines=True)
@@ -122,22 +140,17 @@ def report(rows):
         t.add_row(str(file), kind, "[green]OK[/green]" if ok else "[red]FAIL[/red]", msg or "")
     console.print(t)
 
-@app.command()
-def main(target: Optional[str] = typer.Argument(None, help="scenarios | profiles | all")):
-    kinds = ["scenarios","profiles"] if target in (None, "all") else [target]
-    rows = []
-    exit_code = 0
-    for k in kinds:
-        kind = "scenario" if k.startswith("scenario") else "profile"
-        files = collect(kind)
-        for f in files:
-            err = validate_file(f, kind)
-            ok = err is None
-            if not ok:
-                exit_code = 1
-            rows.append((f.relative_to(Path(__file__).resolve().parents[1]), kind, ok, "" if ok else str(err)))
-    report(rows)
-    raise typer.Exit(code=exit_code)
 
 if __name__ == "__main__":
-    app()
+    import sys
+
+    kinds = ["scenario", "profile"]
+    rows, exit_code = [], 0
+    for k in kinds:
+        for f in collect(k):
+            err = validate_file(f, k)
+            ok = err is None
+            if not ok: exit_code = 1
+            rows.append((f, k, ok, "" if ok else str(err)))
+    report(rows)
+    sys.exit(exit_code)
