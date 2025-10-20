@@ -29,8 +29,13 @@ def main():
     warmup = int(sc["dataset"].get("warmup_s", 0))
     x = df[df["t_s"] >= warmup].copy()
 
-    p99 = float(np.percentile(x["latency_ms"], 99))
-    p999 = float(np.percentile(x["latency_ms"], 99.9))
+    targets = sc.get("evaluation", {}).get("tails", {}).get("p99_targets", ["latency_ms"])
+    p99_map, p999_map = {}, {}
+    for m in targets:
+        v = x[m].astype(float)
+        p99_map[m] = float(np.percentile(v, 99))
+        p999_map[m] = float(np.percentile(v, 99.9))
+
     err = float(x["error_rate_pct"].mean())
 
     av = sc.get("evaluation", {}).get("availability", None)
@@ -41,8 +46,12 @@ def main():
 
     slo = sc.get("evaluation", {}).get("slo", {})
     slo_ok = True
-    if "latency_ms_p99" in slo: slo_ok &= (p99 <= float(slo["latency_ms_p99"]))
-    if "error_rate_pct" in slo: slo_ok &= (err <= float(slo["error_rate_pct"]))
+    for k, v in slo.items():
+        if k.endswith("_p99"):
+            m = k[:-4]
+            slo_ok &= (p99_map.get(m, float("inf")) <= float(v))
+        elif k == "error_rate_pct":
+            slo_ok &= (err <= float(v))
 
     gt = sc["ground_truth"]["positive_interval_s"]
     tol = int(sc.get("evaluation", {}).get("detection", {}).get("window_tolerance_s", 0))
@@ -70,14 +79,16 @@ def main():
         "A": round(A, 6) if A is not None else "NA",
         "MTBF_s": MTBF if MTBF is not None else "NA",
         "MTTR_s": MTTR if MTTR is not None else "NA",
-        "p99_latency_ms": round(p99, 3),
-        "p99_9_latency_ms": round(p999, 3),
         "error_rate_pct": round(err, 4),
         "SLO_pass": bool(slo_ok),
         "precision": round(precision, 4),
         "recall": round(recall, 4),
         "f1": round(f1, 4),
     }
+    for m in targets:
+        row[f"p99_{m}"] = round(p99_map[m], 3)
+        row[f"p99_9_{m}"] = round(p999_map[m], 3)
+
     outp = args.out or Path("eval/reports") / f"{sc['id']}_report.csv"
     outp.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame([row]).to_csv(outp, index=False)

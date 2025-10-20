@@ -50,3 +50,27 @@ docs-serve:
 
 docs-deploy:
 	$(PYTHON) -m mkdocs gh-deploy --force
+
+.PHONY: run-slowdown run-netpart-large run-corruption
+
+SLOW_SCEN := $(ROOT)/benchmarks/scenarios/slowdown_gc_pause.yaml
+NETP_SCEN := $(ROOT)/benchmarks/scenarios/network_partition_large.yaml
+CORR_SCEN := $(ROOT)/benchmarks/scenarios/corruption_silent.yaml
+
+run-slowdown:
+	mkdir -p $(DATA) $(REPORT)
+	$(PYTHON) scripts/generate.py --scenario $(SLOW_SCEN) --out $(DATA)/slowdown.csv
+	$(PYTHON) scripts/baselines/zscore.py --inp $(DATA)/slowdown.csv --out $(DATA)/slowdown_pred.csv --metric latency_ms --window 60 --k 3.0
+	$(PYTHON) scripts/evaluate.py --scenario $(SLOW_SCEN) --data $(DATA)/slowdown.csv --pred $(DATA)/slowdown_pred.csv --out $(REPORT)/slowdown_report.csv
+
+run-netpart-large:
+	mkdir -p $(DATA) $(REPORT)
+	$(PYTHON) scripts/generate.py --scenario $(NETP_SCEN) --out $(DATA)/netpart_large.csv
+	$(PYTHON) scripts/baselines/threshold.py --inp $(DATA)/netpart_large.csv --out $(DATA)/netpart_large_pred.csv --scenario $(NETP_SCEN) --metric latency_ms
+	$(PYTHON) scripts/evaluate.py --scenario $(NETP_SCEN) --data $(DATA)/netpart_large.csv --pred $(DATA)/netpart_large_pred.csv --out $(REPORT)/netpart_large_report.csv
+
+run-corruption:
+	mkdir -p $(DATA) $(REPORT)
+	$(PYTHON) scripts/generate.py --scenario $(CORR_SCEN) --out $(DATA)/corruption.csv
+	$(PYTHON) scripts/baselines/threshold.py --inp $(DATA)/corruption.csv --out $(DATA)/corruption_pred.csv --scenario $(CORR_SCEN) --metric error_rate_pct
+	$(PYTHON) scripts/evaluate.py --scenario $(CORR_SCEN) --data $(DATA)/corruption.csv --pred $(DATA)/corruption_pred.csv --out $(REPORT)/corruption_report.csv

@@ -1,0 +1,41 @@
+id: corruption_silent
+title: Silent data corruption in DB write path
+description: >
+  Elevated error rate without major latency impact; intermittent failed writes.
+tags: [corruption, db, rare-event]
+
+system_profile: ../system_profiles/cloud_small.yaml
+
+dataset:
+  source: synthetic
+  duration_s: 1000
+  warmup_s: 80
+
+failure:
+  type: corruption
+  start_s: 420
+  duration_s: 200
+  parameters:
+    affected_component: db-1
+    error_spike_pct: 1.2
+
+ground_truth:
+  label_name: fault
+  positive_interval_s: [420, 620]
+
+evaluation:
+  availability:
+    mtbf_s: 28800
+    mttr_s: 900
+  tails:
+    p99_targets: [latency_ms]
+  detection:
+    window_tolerance_s: 10
+    metrics: [precision, recall, f1]
+  slo:
+    error_rate_pct: 1.0
+
+reproducibility:
+  seed: 991
+
+version: 0.2.0

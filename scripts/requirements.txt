@@ -7,3 +7,4 @@ numpy>=1.26
 pandas>=2.2
 mkdocs>=1.5.3
 mkdocs-material>=9.5
+scikit-learn>=1.4

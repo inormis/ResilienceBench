@@ -1,0 +1,25 @@
+name: k8s_mesh
+description: 7-node Kubernetes service mesh
+sampling_defaults_hz: 1
+
+nodes:
+  - { id: gw-1, role: gateway }
+  - { id: svc-a-1, role: service }
+  - { id: svc-a-2, role: service }
+  - { id: svc-b-1, role: service }
+  - { id: svc-b-2, role: service }
+  - { id: db-1, role: db }
+  - { id: mq-1, role: mq }
+
+metrics:
+  latency_ms:
+    nominal: 70
+    warning: 200
+    critical: 350
+  error_rate_pct:
+    nominal: 0.02
+    max: 2.5
+  throughput_rps:
+    nominal: 250
+    warning: 140
+    critical: 80

@@ -1,0 +1,41 @@
+id: slowdown_gc_pause
+title: Periodic GC-induced slowdown on service A
+description: >
+  Transient service-wide slowdown due to GC pauses; elevated latency, reduced throughput.
+tags: [slowdown, latency, rare-event]
+
+system_profile: ../system_profiles/k8s_mesh.yaml
+
+dataset:
+  source: synthetic
+  duration_s: 900
+  warmup_s: 60
+
+failure:
+  type: slowdown
+  start_s: 360
+  duration_s: 180
+  parameters:
+    magnitude_ms: 150
+    throughput_drop_pct: 30
+
+ground_truth:
+  label_name: fault
+  positive_interval_s: [360, 540]
+
+evaluation:
+  availability:
+    mtbf_s: 14400
+    mttr_s: 600
+  tails:
+    p99_targets: [latency_ms, throughput_rps]
+  detection:
+    window_tolerance_s: 10
+    metrics: [precision, recall, f1]
+  slo:
+    latency_ms_p99: 250
+
+reproducibility:
+  seed: 773
+
+version: 0.2.0

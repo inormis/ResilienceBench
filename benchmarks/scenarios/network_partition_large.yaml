@@ -1,0 +1,42 @@
+id: netpart_large_mesh
+title: Large-scale network partition in service mesh
+description: >
+  Partition isolating gateway and part of services, degrading latency and throughput.
+tags: [network, partition, rare-event]
+
+system_profile: ../system_profiles/k8s_mesh.yaml
+
+dataset:
+  source: synthetic
+  duration_s: 1200
+  warmup_s: 90
+
+failure:
+  type: network_partition
+  start_s: 500
+  duration_s: 300
+  parameters:
+    affected_nodes: [gw-1, svc-a-1, svc-b-1]
+    packet_loss_pct: 100
+
+ground_truth:
+  label_name: fault
+  positive_interval_s: [500, 800]
+
+evaluation:
+  availability:
+    mtbf_s: 28800
+    mttr_s: 900
+  tails:
+    p99_targets: [latency_ms, throughput_rps]
+  detection:
+    window_tolerance_s: 12
+    metrics: [precision, recall, f1]
+  slo:
+    latency_ms_p99: 280
+    error_rate_pct: 1.2
+
+reproducibility:
+  seed: 6201
+
+version: 0.2.0
