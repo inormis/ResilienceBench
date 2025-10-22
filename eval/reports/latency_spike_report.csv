@@ -1,2 +1,2 @@
-scenario_id,seed,A,MTBF_s,MTTR_s,p99_latency_ms,p99_9_latency_ms,error_rate_pct,SLO_pass,precision,recall,f1
-latency_spike_checkout,20252,0.96,14400.0,600.0,287.859,290.315,0.0489,False,1.0,0.9149,0.9556
+scenario_id,seed,A,MTBF_s,MTTR_s,error_rate_pct,SLO_pass,precision,recall,f1,p99_latency_ms,p99_9_latency_ms
+latency_spike_checkout,20252,0.96,14400.0,600.0,0.0489,False,1.0,0.9149,0.9556,287.859,290.315

@@ -1,0 +1,11 @@
+{
+  "name": "synthetic_v1",
+  "generator": "scripts/generate.py",
+  "version": "0.7.0",
+  "scenarios": [
+    "benchmarks/scenarios/latency_spike.yaml",
+    "benchmarks/scenarios/network_partition_large.yaml",
+    "benchmarks/scenarios/slowdown_gc_pause.yaml",
+    "benchmarks/scenarios/corruption_silent.yaml"
+  ]
+}

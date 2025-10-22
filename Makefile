@@ -74,3 +74,18 @@ run-corruption:
 	$(PYTHON) scripts/generate.py --scenario $(CORR_SCEN) --out $(DATA)/corruption.csv
 	$(PYTHON) scripts/baselines/threshold.py --inp $(DATA)/corruption.csv --out $(DATA)/corruption_pred.csv --scenario $(CORR_SCEN) --metric error_rate_pct
 	$(PYTHON) scripts/evaluate.py --scenario $(CORR_SCEN) --data $(DATA)/corruption.csv --pred $(DATA)/corruption_pred.csv --out $(REPORT)/corruption_report.csv
+
+.PHONY: all pkg-install pkg-cli docker-publish
+
+all: validate run-phase3 report
+
+pkg-install:
+	$(PYTHON) -m pip install -e .
+
+pkg-cli:
+	resbench all --scenario $(SCEN) --prefix $(DATA)/cli_sample
+	resbench report --reports $(REPORT) --out $(REPORT)/index.html --title "ResilienceBench Report"
+
+docker-publish:
+	docker build -t $(IMAGE) -f $(DFILE) .
+	@if [ -n "$$GITHUB_REF_NAME" ]; then docker tag $(IMAGE) ghcr.io/$$GITHUB_REPOSITORY:$(GITHUB_REF_NAME); docker push ghcr.io/$$GITHUB_REPOSITORY:$(GITHUB_REF_NAME); fi
