@@ -89,3 +89,25 @@ pkg-cli:
 docker-publish:
 	docker build -t $(IMAGE) -f $(DFILE) .
 	@if [ -n "$$GITHUB_REF_NAME" ]; then docker tag $(IMAGE) ghcr.io/$$GITHUB_REPOSITORY:$(GITHUB_REF_NAME); docker push ghcr.io/$$GITHUB_REPOSITORY:$(GITHUB_REF_NAME); fi
+
+.PHONY: export-json validate-json dry-litmus dry-gremlin dry-fis interop
+
+EXPORT_DIR := $(ROOT)/interop/out
+SCHEMA_DIR := $(ROOT)/interop/schemas
+
+export-json:
+	$(PYTHON) interop/export.py --reports $(REPORT) --out $(EXPORT_DIR)/report.ndjson
+
+validate-json:
+	$(PYTHON) interop/validate.py --schema $(SCHEMA_DIR)/report_v1.json --data $(EXPORT_DIR)/report.ndjson
+
+dry-litmus:
+	$(PYTHON) interop/runners/litmus_gen.py --scenario $(SCEN) --outdir $(EXPORT_DIR)
+
+dry-gremlin:
+	$(PYTHON) interop/runners/gremlin_gen.py --scenario $(SCEN) --outdir $(EXPORT_DIR)
+
+dry-fis:
+	$(PYTHON) interop/runners/aws_fis_gen.py --scenario $(SCEN) --outdir $(EXPORT_DIR)
+
+interop: export-json validate-json dry-litmus dry-gremlin dry-fis

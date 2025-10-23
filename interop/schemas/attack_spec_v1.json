@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Attack Spec v1",
+  "type": "object",
+  "required": ["tool", "scenario_id", "failure"],
+  "properties": {
+    "tool": { "enum": ["litmus", "gremlin", "aws_fis"] },
+    "scenario_id": { "type": "string" },
+    "failure": {
+      "type": "object",
+      "required": ["type", "start_s", "duration_s", "parameters"],
+      "properties": {
+        "type": { "type": "string" },
+        "start_s": { "type": "number" },
+        "duration_s": { "type": "number" },
+        "parameters": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

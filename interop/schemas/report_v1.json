@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ResilienceBench Report v1",
+  "type": "object",
+  "required": ["scenario_id", "seed", "SLO_pass"],
+  "properties": {
+    "scenario_id": { "type": "string" },
+    "seed": { "type": "integer" },
+    "A": { "type": ["number", "string"] },
+    "MTBF_s": { "type": ["number", "string"] },
+    "MTTR_s": { "type": ["number", "string"] },
+    "error_rate_pct": { "type": "number" },
+    "SLO_pass": { "type": "boolean" },
+    "precision": { "type": "number" },
+    "recall": { "type": "number" },
+    "f1": { "type": "number" }
+  },
+  "patternProperties": {
+    "^p99(_9)?_": { "type": "number" }
+  },
+  "additionalProperties": false
+}
