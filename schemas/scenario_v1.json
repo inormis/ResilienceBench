@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ResilienceBench Scenario v1.0",
+  "type": "object",
+  "required": [
+    "id","title","description","tags","system_profile",
+    "dataset","failure","ground_truth","evaluation",
+    "reproducibility","version"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "system_profile": { "type": "string" },
+    "dataset": {
+      "type": "object",
+      "required": ["source","duration_s","warmup_s"],
+      "properties": {
+        "source": { "enum": ["synthetic","trace","live"] },
+        "duration_s": { "type": "integer", "minimum": 1 },
+        "warmup_s": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "failure": {
+      "type": "object",
+      "required": ["type","start_s","duration_s","parameters"],
+      "properties": {
+        "type": {
+          "enum": ["network_partition","node_crash","latency_spike","corruption","slowdown"]
+        },
+        "start_s": { "type": "integer", "minimum": 0 },
+        "duration_s": { "type": "integer", "minimum": 1 },
+        "parameters": { "type": "object" }
+      }
+    },
+    "ground_truth": {
+      "type": "object",
+      "required": ["positive_interval_s"],
+      "properties": {
+        "label_name": { "type": "string" },
+        "positive_interval_s": {
+          "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "properties": {
+        "availability": {
+          "type": "object",
+          "required": ["mtbf_s","mttr_s"],
+          "properties": {
+            "mtbf_s": { "type": "integer", "minimum": 1 },
+            "mttr_s": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "tails": {
+          "type": "object",
+          "properties": {
+            "p99_targets": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1
+            }
+          }
+        },
+        "detection": {
+          "type": "object",
+          "properties": {
+            "window_tolerance_s": { "type": "integer", "minimum": 0, "maximum": 60 },
+            "metrics": {
+              "type": "array",
+              "items": { "enum": ["precision","recall","f1"] },
+              "minItems": 1
+            }
+          }
+        },
+        "slo": { "type": "object", "additionalProperties": { "type": "number" } }
+      },
+      "required": ["slo"]
+    },
+    "reproducibility": {
+      "type": "object",
+      "required": ["seed"],
+      "properties": { "seed": { "type": "integer" } }
+    },
+    "version": { "type": "string", "pattern": "^1\\.0(\\.\\d+)?$" }
+  },
+  "additionalProperties": false
+}

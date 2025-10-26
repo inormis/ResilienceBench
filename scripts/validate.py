@@ -87,6 +87,12 @@ class Scenario(BaseModel):
             raise ValueError(f"evaluation.slo missing for {f}: {', '.join(missing)}")
         return self
 
+    @model_validator(mode="after")
+    def check_version_semver(self):
+        import re
+        if not re.match(r"^1\\.0(\\.\\d+)?$", self.version or ""):
+            raise ValueError("version must match ^1.0(.x)? for v1 freeze")
+        return self
 
 class Node(BaseModel):
     id: str

@@ -111,3 +111,33 @@ dry-fis:
 	$(PYTHON) interop/runners/aws_fis_gen.py --scenario $(SCEN) --outdir $(EXPORT_DIR)
 
 interop: export-json validate-json dry-litmus dry-gremlin dry-fis
+
+.PHONY: artifact release-check
+
+VERSION ?= 1.0.0
+
+artifact:
+	$(PYTHON) scripts/package_artifact.py --version $(VERSION) --outdir dist
+
+release-check:
+	@grep -q "zenodo\." CITATION.cff || (echo "Missing DOI in CITATION.cff"; exit 1)
+	@grep -q "zenodo\." docs/citation.md || (echo "Missing DOI in docs/citation.md"; exit 1)
+	@echo "OK: citation fields present"
+
+.PHONY: schema scenarios profiles freeze release-local
+
+schema:
+	$(PYTHON) scripts/validate_schema.py --scenarios --profiles
+
+scenarios:
+	$(PYTHON) scripts/bump_version.py --version 1.0.0
+
+profiles:
+	$(PYTHON) scripts/bump_version.py --version 1.0.0
+
+freeze: validate schema
+	@echo "Freeze checks passed for v1.0.*"
+
+release-local: freeze
+	$(PYTHON) scripts/package_artifact.py --version 1.0.0 --outdir dist
+	@ls -l dist/*.tar.gz

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ResilienceBench System Profile v1.0",
+  "type": "object",
+  "required": ["name","sampling_defaults_hz","nodes","metrics"],
+  "properties": {
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "sampling_defaults_hz": { "type": "integer", "minimum": 1 },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id","role"],
+        "properties": {
+          "id": { "type": "string" },
+          "role": { "type": "string" }
+        }
+      },
+      "minItems": 1
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["nominal"],
+        "properties": {
+          "nominal": { "type": "number" },
+          "warning": { "type": "number" },
+          "critical": { "type": "number" },
+          "max": { "type": "number" }
+        }
+      }
+    },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}
