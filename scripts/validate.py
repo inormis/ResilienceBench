@@ -90,8 +90,10 @@ class Scenario(BaseModel):
     @model_validator(mode="after")
     def check_version_semver(self):
         import re
-        if not re.match(r"^1\\.0(\\.\\d+)?$", self.version or ""):
-            raise ValueError("version must match ^1.0(.x)? for v1 freeze")
+        if not self.version:
+            raise ValueError("Version is not defined")
+        if not re.fullmatch(r"1\.0(?:\.\d+)?", self.version):
+            raise ValueError(f"version {self.version} must match ^1.0(.x)? for v1 freeze")
         return self
 
 class Node(BaseModel):
@@ -125,7 +127,7 @@ def validate_file(path: Path, kind: Literal["scenario", "profile"]) -> Optional[
         (Scenario if kind == "scenario" else SystemProfile)(**data)
         return None
     except ValidationError as e:
-        return e.short_errors()
+        return _fmt_pydantic_errors(e)
     except Exception as e:
         return str(e)
 
@@ -135,16 +137,38 @@ def collect(kind: Literal["scenario", "profile"]) -> List[Path]:
     folder = "scenarios" if kind == "scenario" else "system_profiles"
     return sorted([p for p in (root / "benchmarks" / folder).glob("*.yaml") if not p.name.startswith("_")])
 
-
 def report(rows):
-    t = Table(title="ResilienceBench Validation", show_lines=True)
-    t.add_column("File", overflow="fold")
-    t.add_column("Kind")
-    t.add_column("Status")
-    t.add_column("Details", overflow="fold")
-    for file, kind, ok, msg in rows:
-        t.add_row(str(file), kind, "[green]OK[/green]" if ok else "[red]FAIL[/red]", msg or "")
-    console.print(t)
+    """
+    Generates and prints the ResilienceBench validation report.
+    """
+    table = _build_validation_table(rows)
+    console.print(table)
+
+
+def _build_validation_table(rows):
+    table = Table(title="ResilienceBench Validation", show_lines=True)
+    table.add_column("File", overflow="fold")
+    table.add_column("Kind")
+    table.add_column("Status")
+    table.add_column("Details", overflow="fold")
+
+    for filename, kind, is_success, details in rows:
+        status_markup = "[green]OK[/green]" if is_success else "[red]FAIL[/red]"
+        table.add_row(
+            str(filename),
+            kind,
+            status_markup,
+            details or ""
+        )
+    return table
+    
+def _fmt_pydantic_errors(e: ValidationError) -> str:
+    parts = []
+    for error in e.errors():
+        loc = "/".join(str(x) for x in error.get("loc", ()))
+        msg = error.get("msg", "")
+        parts.append(f"{loc}: {msg}" if loc else msg)
+    return "; ".join(parts)
 
 
 if __name__ == "__main__":

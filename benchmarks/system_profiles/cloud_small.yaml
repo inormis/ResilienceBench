@@ -1,14 +1,17 @@
 name: cloud_small
 description: 5-node microservices cluster
 sampling_defaults_hz: 1
-
 nodes:
-  - { id: api-1, role: api }
-  - { id: api-2, role: api }
-  - { id: db-1, role: db }
-  - { id: cache-1, role: cache }
-  - { id: mq-1, role: mq }
-
+- id: api-1
+  role: api
+- id: api-2
+  role: api
+- id: db-1
+  role: db
+- id: cache-1
+  role: cache
+- id: mq-1
+  role: mq
 metrics:
   latency_ms:
     nominal: 60
@@ -21,3 +24,4 @@ metrics:
     nominal: 200
     warning: 120
     critical: 60
+version: 1.0.0
