@@ -8,6 +8,7 @@ nav:
   - Protocol: protocol.md
   - Metrics: metrics.md
   - Compatibility: compatibility.md
+  - Standards Mapping: standards_mapping.md
   - Changelog: changelog.md
 plugins: [ ]
 markdown_extensions:
