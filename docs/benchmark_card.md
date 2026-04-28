@@ -12,26 +12,27 @@
 
 ## Failure Types Covered
 
-| Type | Description |
-|------|-------------|
-| `latency_spike` | Transient tail-latency degradation |
-| `node_crash` | Complete node failure with throughput loss |
-| `network_partition` | Network segmentation with latency and error increase |
-| `slowdown` | Sustained performance degradation (e.g., GC pressure) |
-| `corruption` | Silent data corruption with elevated error rates |
+| Type                | Description                                           |
+|---------------------|-------------------------------------------------------|
+| `latency_spike`     | Transient tail-latency degradation                    |
+| `node_crash`        | Complete node failure with throughput loss            |
+| `network_partition` | Network segmentation with latency and error increase  |
+| `slowdown`          | Sustained performance degradation (e.g., GC pressure) |
+| `corruption`        | Silent data corruption with elevated error rates      |
 
 ## Metrics
 
-See [Metrics](metrics.md) for full definitions. Core metrics: availability (A), tail latency (p99, p99.9), error rate, SLO pass/fail, precision, recall, F1.
+See [Metrics](metrics.md) for full definitions. Core metrics: availability (A), tail latency (p99, p99.9), error rate,
+SLO pass/fail, precision, recall, F1.
 
 ## System Profiles
 
-| Profile | Nodes | Domain |
-|---------|-------|--------|
-| `default` | 3 (leader + 2 followers) | Generic distributed system |
-| `cloud_small` | 3 | Cloud microservices |
-| `k8s_mesh` | 4 | Kubernetes service mesh |
-| `transport_scada` | 3 | Transportation SCADA |
+| Profile           | Nodes                    | Domain                     |
+|-------------------|--------------------------|----------------------------|
+| `default`         | 3 (leader + 2 followers) | Generic distributed system |
+| `cloud_small`     | 3                        | Cloud microservices        |
+| `k8s_mesh`        | 4                        | Kubernetes service mesh    |
+| `transport_scada` | 3                        | Transportation SCADA       |
 
 ## Known Limitations
 

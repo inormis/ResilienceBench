@@ -157,3 +157,8 @@ lint:
 
 security-scan:
 	$(PYTHON) -m bandit -r scripts/ interop/ -q
+
+.PHONY: validate-results
+
+validate-results:
+	$(PYTHON) scripts/validate_results.py --reports-dir $(REPORT)

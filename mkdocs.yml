@@ -12,6 +12,9 @@ nav:
   - Benchmark Card: benchmark_card.md
   - Limitations: limitations.md
   - Compliance: compliance.md
+  - Results Gallery: results_gallery.md
+  - Executive Brief: executive_brief.md
+  - Impact: impact.md
   - Changelog: changelog.md
 plugins: [ ]
 markdown_extensions:
