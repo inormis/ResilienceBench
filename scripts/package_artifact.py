@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json, tarfile, hashlib, subprocess, sys, os, platform
+import argparse
+import json
+import tarfile
+import hashlib
+import subprocess  # nosec B404
+import sys
+import platform
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -15,7 +21,7 @@ def sha256(p: Path) -> str:
 
 def git_commit() -> str:
     try:
-        return subprocess.check_output(["git","rev-parse","HEAD"], cwd=ROOT).decode().strip()
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT).decode().strip()  # nosec B603 B607
     except Exception:
         return "unknown"
 
@@ -25,7 +31,8 @@ def main():
     ap.add_argument("--outdir", default="dist")
     args = ap.parse_args()
 
-    outdir = (ROOT / args.outdir); outdir.mkdir(parents=True, exist_ok=True)
+    outdir = ROOT / args.outdir
+    outdir.mkdir(parents=True, exist_ok=True)
     name = f"resiliencebench-{args.version}-artifact.tar.gz"
     out = outdir / name
 
@@ -47,7 +54,8 @@ def main():
     with tarfile.open(out, "w:gz") as tar:
         for item in include:
             p = ROOT / item
-            if not p.exists(): continue
+            if not p.exists():
+                continue
             if p.is_dir():
                 for sub in p.rglob("*"):
                     if sub.is_file():

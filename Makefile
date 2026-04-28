@@ -150,3 +150,10 @@ freeze: validate schema
 release-local: freeze
 	$(PYTHON) scripts/package_artifact.py --version 1.0.0 --outdir dist
 	@ls -l dist/*.tar.gz
+.PHONY: lint security-scan
+
+lint:
+	$(PYTHON) -m ruff check scripts/ interop/
+
+security-scan:
+	$(PYTHON) -m bandit -r scripts/ interop/ -q

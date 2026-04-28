@@ -2,13 +2,16 @@
 from __future__ import annotations
 import argparse
 from pathlib import Path
-import numpy as np, pandas as pd, yaml
+import numpy as np
+import pandas as pd
+import yaml
 
 def load_yaml(p: Path) -> dict:
     return yaml.safe_load(p.read_text(encoding="utf-8"))
 
 def dilate(mask: np.ndarray, k: int) -> np.ndarray:
-    if k <= 0: return mask
+    if k <= 0:
+        return mask
     m = mask.copy()
     for _ in range(k):
         left = np.concatenate(([False], m[:-1]))
@@ -41,8 +44,10 @@ def main():
     av = sc.get("evaluation", {}).get("availability", None)
     A = MTBF = MTTR = None
     if av:
-        MTBF = float(av.get("mtbf_s", 0)); MTTR = float(av.get("mttr_s", 0))
-        if MTBF > 0 and MTTR > 0: A = MTBF / (MTBF + MTTR)
+        MTBF = float(av.get("mtbf_s", 0))
+        MTTR = float(av.get("mttr_s", 0))
+        if MTBF > 0 and MTTR > 0:
+            A = MTBF / (MTBF + MTTR)
 
     slo = sc.get("evaluation", {}).get("slo", {})
     slo_ok = True

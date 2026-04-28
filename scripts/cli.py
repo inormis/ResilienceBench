@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, subprocess, sys, os
+import argparse
+import subprocess  # nosec B404
+import sys
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def run(*cmd: str):
-    r = subprocess.run(list(cmd), cwd=ROOT)
+    r = subprocess.run(list(cmd), cwd=ROOT)  # nosec B603
     sys.exit(r.returncode) if r.returncode else None
 
 
@@ -53,12 +56,15 @@ def main():
     elif args.cmd == "baseline":
         script = "scripts/baselines/threshold.py" if args.algo == "threshold" else "scripts/baselines/zscore.py"
         cmd = [sys.executable, script, "--inp", args.inp, "--out", args.out, "--metric", args.metric]
-        if args.scenario: cmd += ["--scenario", args.scenario]
+        if args.scenario:
+            cmd += ["--scenario", args.scenario]
         run(*cmd)
     elif args.cmd == "eval":
         cmd = [sys.executable, "scripts/evaluate.py", "--scenario", args.scenario, "--data", args.data]
-        if args.pred: cmd += ["--pred", args.pred]
-        if args.out: cmd += ["--out", args.out]
+        if args.pred:
+            cmd += ["--pred", args.pred]
+        if args.out:
+            cmd += ["--out", args.out]
         run(*cmd)
     elif args.cmd == "report":
         run(sys.executable, "scripts/report.py", "--reports", args.reports, "--out", args.out, "--title", args.title)

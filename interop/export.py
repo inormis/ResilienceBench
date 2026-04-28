@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json
+import argparse
+import json
 from pathlib import Path
 import pandas as pd
 
@@ -13,7 +14,8 @@ def main():
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     csvs = sorted(args.reports.glob("*_report.csv"))
-    if not csvs: raise SystemExit("no report CSVs found")
+    if not csvs:
+        raise SystemExit("no report CSVs found")
 
     with args.out.open("w", encoding="utf-8") as w:
         for p in csvs:

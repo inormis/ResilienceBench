@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, csv
+import argparse
+import csv
 from pathlib import Path
-import numpy as np, pandas as pd, yaml
+import numpy as np
+import pandas as pd
+import yaml
 
 
 def load_yaml(p: Path) -> dict:

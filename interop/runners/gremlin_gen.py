@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json, yaml
+import argparse
+import json
+import yaml
 from pathlib import Path
 
 MAP = {

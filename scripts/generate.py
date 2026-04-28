@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, random
+import argparse
+import random
 from pathlib import Path
 from datetime import datetime, timezone
-import yaml, numpy as np, pandas as pd
+import yaml
+import numpy as np
+import pandas as pd
 
 def load_yaml(p: Path) -> dict:
     return yaml.safe_load(p.read_text(encoding="utf-8"))
@@ -20,7 +23,8 @@ def main():
     sc = load_yaml(args.scenario)
     prof = load_yaml((args.scenario.parent / sc["system_profile"]).resolve())
     seed = int(sc["reproducibility"]["seed"])
-    random.seed(seed); np.random.seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
 
     hz = int(prof.get("sampling_defaults_hz", 1))
     dur = int(sc["dataset"]["duration_s"])
@@ -35,7 +39,9 @@ def main():
     throughput = np.full_like(t, thr_nom, dtype=float) + np.random.normal(0, thr_nom * 0.03, size=t.size)
     error_rate = np.clip(np.random.normal(err_nom, err_nom * 0.25, size=t.size), 0, None)
 
-    f = sc["failure"]; start = float(f["start_s"]); end = start + float(f["duration_s"])
+    f = sc["failure"]
+    start = float(f["start_s"])
+    end = start + float(f["duration_s"])
     mask = (t >= start) & (t <= end)
 
     if f["type"] == "latency_spike":
@@ -46,13 +52,18 @@ def main():
         latency[tail] += mag * np.exp(-(t[tail] - end) / decay)
         error_rate[mask] += 0.2
     elif f["type"] == "node_crash":
-        latency[mask] += 250; error_rate[mask] += 1.0; throughput[mask] *= 0.6
+        latency[mask] += 250
+        error_rate[mask] += 1.0
+        throughput[mask] *= 0.6
     elif f["type"] == "network_partition":
-        latency[mask] += 300; error_rate[mask] += 1.5; throughput[mask] *= 0.5
+        latency[mask] += 300
+        error_rate[mask] += 1.5
+        throughput[mask] *= 0.5
     elif f["type"] == "slowdown":
         mag = float(f["parameters"].get("magnitude_ms", 120))
         drop = float(f["parameters"].get("throughput_drop_pct", 25)) / 100.0
-        latency[mask] += mag; throughput[mask] *= (1.0 - drop)
+        latency[mask] += mag
+        throughput[mask] *= (1.0 - drop)
     elif f["type"] == "corruption":
         spike = float(f["parameters"].get("error_spike_pct", 1.0))
         error_rate[mask] += spike

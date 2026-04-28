@@ -2,7 +2,9 @@
 from __future__ import annotations
 import argparse
 from pathlib import Path
-import yaml, pandas as pd, matplotlib.pyplot as plt
+import yaml
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def load_yaml(p: Path) -> dict:
@@ -24,7 +26,7 @@ def main():
         ax.plot(df["ts"], df["latency_ms"], label="latency_ms")
     if "throughput_rps" in df.columns:
         ax.plot(df["ts"], df["throughput_rps"], label="throughput_rps")
-    ax.set_xlabel("time");
+    ax.set_xlabel("time")
     ax.legend(loc="best")
     g0, g1 = sc["ground_truth"]["positive_interval_s"]
     t = df["ts"]

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json
+import argparse
+import json
 from pathlib import Path
 from jsonschema import Draft202012Validator
 
@@ -15,7 +16,8 @@ def main():
 
     errors = 0
     for i, line in enumerate(args.data.read_text(encoding="utf-8").splitlines(), 1):
-        if not line.strip(): continue
+        if not line.strip():
+            continue
         obj = json.loads(line)
         for e in val.iter_errors(obj):
             print(f"[line {i}] {e.message}")

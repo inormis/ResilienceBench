@@ -9,7 +9,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def bump(folder: Path, version: str) -> int:
     n = 0
     for p in folder.glob("*.yaml"):
-        if p.name.startswith("_"): continue
+        if p.name.startswith("_"):
+            continue
         data = yaml.safe_load(p.read_text(encoding="utf-8"))
         if data.get("version") != version:
             data["version"] = version

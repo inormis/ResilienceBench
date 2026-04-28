@@ -180,7 +180,8 @@ if __name__ == "__main__":
         for f in collect(k):
             err = validate_file(f, k)
             ok = err is None
-            if not ok: exit_code = 1
+            if not ok:
+                exit_code = 1
             rows.append((f, k, ok, "" if ok else str(err)))
     report(rows)
     sys.exit(exit_code)

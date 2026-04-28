@@ -11,6 +11,7 @@ nav:
   - Standards Mapping: standards_mapping.md
   - Benchmark Card: benchmark_card.md
   - Limitations: limitations.md
+  - Compliance: compliance.md
   - Changelog: changelog.md
 plugins: [ ]
 markdown_extensions:

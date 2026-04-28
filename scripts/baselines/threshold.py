@@ -2,7 +2,8 @@
 from __future__ import annotations
 import argparse
 from pathlib import Path
-import yaml, pandas as pd
+import yaml
+import pandas as pd
 
 def load_yaml(p: Path) -> dict:
     return yaml.safe_load(p.read_text(encoding="utf-8"))
