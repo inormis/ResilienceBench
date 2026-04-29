@@ -1,0 +1,48 @@
+id: transport_signal_loss
+title: Signal communication degradation in transportation SCADA
+description: 'Latency spike simulating communication degradation between signal controller
+  and field sensors in a transportation SCADA system.
+
+  '
+tags:
+- latency
+- transportation
+- critical-infrastructure
+- scada
+system_profile: ../system_profiles/transport_scada.yaml
+dataset:
+  source: synthetic
+  duration_s: 1800
+  warmup_s: 120
+failure:
+  type: latency_spike
+  start_s: 600
+  duration_s: 300
+  parameters:
+    target_metric: latency_ms
+    magnitude_ms: 350
+    decay_s: 120
+ground_truth:
+  label_name: fault
+  positive_interval_s:
+  - 600
+  - 900
+evaluation:
+  availability:
+    mtbf_s: 28800
+    mttr_s: 900
+  tails:
+    p99_targets:
+    - latency_ms
+  detection:
+    window_tolerance_s: 15
+    metrics:
+    - precision
+    - recall
+    - f1
+  slo:
+    latency_ms_p99: 400
+    error_rate_pct: 0.5
+reproducibility:
+  seed: 40227
+version: 1.0.0

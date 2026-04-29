@@ -32,7 +32,8 @@
         }
       }
     },
-    "notes": { "type": "string" }
+    "notes": { "type": "string" },
+    "version": { "type": "string" }
   },
   "additionalProperties": false
 }

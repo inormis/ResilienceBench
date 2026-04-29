@@ -1,0 +1,23 @@
+name: transport_scada
+description: Transportation SCADA-like system with signal controller, central dispatcher, and field sensor gateway
+sampling_defaults_hz: 1
+nodes:
+- id: signal_controller
+  role: leader
+- id: central_dispatcher
+  role: follower
+- id: field_sensor_gateway
+  role: follower
+metrics:
+  latency_ms:
+    nominal: 80
+    warning: 200
+    critical: 500
+  error_rate_pct:
+    nominal: 0.005
+    max: 0.5
+notes: 'Models a simplified transportation SCADA communication path. Latency thresholds
+  reflect real-time signal control requirements.
+
+  '
+version: 1.0.0
