@@ -79,6 +79,15 @@ run-corruption:
 
 all: validate run-phase3 report
 
+.PHONY: ae
+
+ae: validate schema run-phase3 report
+	@echo ""
+	@echo "=== Artifact Evaluation Complete ==="
+	@echo "Outputs:"
+	@ls -1 $(DATA)/latency_spike.csv $(DATA)/latency_spike_pred.csv $(REPORT)/latency_spike_report.csv $(REPORT)/index.html 2>/dev/null || true
+	@echo "==================================="
+
 pkg-install:
 	$(PYTHON) -m pip install -e .
 
